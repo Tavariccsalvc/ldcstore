@@ -101,7 +101,7 @@ export function OrderForm({
           document.body.appendChild(form);
           form.submit();
         } else {
-          router.push(`/order/result?orderNo=${result.orderNo}`);
+          router.push(`/order/result?out_trade_no=${result.orderNo}`);
         }
       } else {
         toast.error("下单失败", {

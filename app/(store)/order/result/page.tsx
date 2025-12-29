@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 interface OrderResultPageProps {
-  searchParams: Promise<{ orderNo?: string }>;
+  searchParams: Promise<{ out_trade_no?: string }>;
 }
 
 interface OrderData {
@@ -36,7 +36,7 @@ interface OrderData {
 
 export default function OrderResultPage({ searchParams }: OrderResultPageProps) {
   const params = use(searchParams);
-  const orderNo = params.orderNo || "";
+  const orderNo = params.out_trade_no || "";
 
   const [isPending, startTransition] = useTransition();
   const [order, setOrder] = useState<OrderData | null>(null);

@@ -139,7 +139,7 @@ export function createPayment(
     name: productName.slice(0, 64), // 最多 64 字符
     money: amount.toFixed(2),
     notify_url: `${siteUrl}/api/payment/notify`,
-    return_url: `${siteUrl}/order/result?orderNo=${orderId}`,
+    return_url: `${siteUrl}/order/result?out_trade_no=${orderId}`,
   };
 
   const sign = generateSign(params as unknown as Record<string, string>, secret);
