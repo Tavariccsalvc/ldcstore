@@ -80,7 +80,7 @@ async function CategoryTabs({ currentCategory }: { currentCategory?: string }) {
 function ProductGridSkeleton() {
   return (
     <>
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
           className="flex flex-col overflow-hidden rounded-xl border bg-card"
