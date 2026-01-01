@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Loader2, Lock } from "lucide-react"
+import { Loader2, Lock, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { LinuxDoLogo } from "@/components/icons/linuxdo-logo"
+import { adminLogin } from "@/lib/actions/auth"
 
 const loginSchema = z.object({
   password: z.string().min(1, "请输入密码"),
@@ -35,6 +36,8 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false)
   const [isOAuthLoading, setIsOAuthLoading] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [isBlocked, setIsBlocked] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/admin"
@@ -48,16 +51,16 @@ export function LoginForm({
 
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true)
+    setLoginError(null)
 
     try {
-      const result = await signIn("credentials", {
-        password: values.password,
-        redirect: false,
-      })
+      const result = await adminLogin(values.password)
 
-      if (result?.error) {
+      if (!result.success) {
+        setLoginError(result.message)
+        setIsBlocked(result.blocked || false)
         toast.error("登录失败", {
-          description: "密码错误",
+          description: result.message,
         })
       } else {
         toast.success("登录成功")
@@ -85,7 +88,7 @@ export function LoginForm({
     }
   }
 
-  const isDisabled = isLoading || isOAuthLoading
+  const isDisabled = isLoading || isOAuthLoading || isBlocked
 
   return (
     <div className={cn("flex flex-col", className)} {...props}>
@@ -109,21 +112,42 @@ export function LoginForm({
                   请使用管理密码或 Linux DO 账号登录
                 </p>
               </div>
+              {/* 锁定警告 */}
+              {isBlocked && loginError && (
+                <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">账户已被临时锁定</p>
+                    <p className="mt-1 text-red-600 dark:text-red-400">{loginError}</p>
+                  </div>
+                </div>
+              )}
+
               <Field>
                 <FieldLabel htmlFor="password">管理密码</FieldLabel>
                 <Input
                   id="password"
                   type="password"
                   placeholder="输入管理密码"
-                  className="h-11"
+                  className={cn(
+                    "h-11",
+                    loginError && !isBlocked && "border-red-500 focus-visible:ring-red-500"
+                  )}
                   autoFocus
                   disabled={isDisabled}
-                  {...form.register("password")}
+                  {...form.register("password", {
+                    onChange: () => {
+                      if (loginError && !isBlocked) setLoginError(null)
+                    }
+                  })}
                 />
                 {form.formState.errors.password && (
                   <FieldError>
                     {form.formState.errors.password.message}
                   </FieldError>
+                )}
+                {loginError && !isBlocked && (
+                  <FieldError>{loginError}</FieldError>
                 )}
               </Field>
               <Field>
