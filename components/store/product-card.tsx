@@ -123,16 +123,16 @@ export function ProductCard({
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
             {salesCount !== undefined && salesCount > 0 && (
               <div className="flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
+                <TrendingUp className="h-3.5 w-3.5" />
                 <span>{salesCount}售</span>
               </div>
             )}
             {!isOutOfStock && stock > 0 && stock <= 10 && (
               <div className="flex items-center gap-1 text-orange-500">
-                <Sparkles className="h-3 w-3" />
+                <Sparkles className="h-3.5 w-3.5" />
                 <span>仅剩{stock}</span>
               </div>
             )}
